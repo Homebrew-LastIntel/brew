@@ -24,20 +24,46 @@ RSpec.describe Homebrew::Diagnostic::Checks do
       )
     end
 
-    it "reports Tier 3 on Intel macOS" do
-      macos_version = MacOSVersion.new("26")
+    it "warns that upstream provides no bottles on Intel Tahoe" do
+      macos_version = MacOSVersion.new("26.1")
       allow(Hardware::CPU).to receive(:intel?).and_return(true)
       allow(OS::Mac).to receive_messages(version: macos_version, full_version: macos_version)
       allow(OS::Mac.version).to receive_messages(outdated_release?: false, prerelease?: false)
 
-      expect(checks.check_for_unsupported_macos).to have_attributes(
+      finding = checks.check_for_unsupported_macos
+      expect(finding).to have_attributes(
         tier:        3,
-        text:        match("We do not provide support for this platform"),
         remediation: have_attributes(text: <<~EOS),
           Homebrew no longer builds bottles for this configuration.
           Existing bottles may still work, but updated formulae may build from source.
         EOS
       )
+      expect(finding.text).to include("Upstream Homebrew does not provide bottles")
+      expect(finding.text).not_to include("do not provide support")
+    end
+
+    it "warns that upstream provides no bottles on Intel Sequoia" do
+      macos_version = MacOSVersion.new("15.7")
+      allow(Hardware::CPU).to receive(:intel?).and_return(true)
+      allow(OS::Mac).to receive_messages(version: macos_version, full_version: macos_version)
+      allow(OS::Mac.version).to receive_messages(outdated_release?: false, prerelease?: false)
+
+      finding = checks.check_for_unsupported_macos
+      expect(finding).to have_attributes(
+        tier:        3,
+        remediation: have_attributes(text: include("MacPorts")),
+      )
+      expect(finding.text).to include("Upstream Homebrew does not provide bottles")
+      expect(finding.text).not_to include("do not provide support")
+    end
+
+    it "does not say macOS Golden Gate runs on Intel" do
+      macos_version = MacOSVersion.new("27")
+      allow(Hardware::CPU).to receive(:intel?).and_return(true)
+      allow(OS::Mac).to receive_messages(version: macos_version, full_version: macos_version)
+      allow(OS::Mac.version).to receive_messages(outdated_release?: false, prerelease?: false)
+
+      expect(checks.check_for_unsupported_macos.to_s).not_to include("Golden Gate runs on Intel")
     end
 
     it "preserves the remediation for outdated macOS on Intel" do

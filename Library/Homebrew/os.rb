@@ -101,19 +101,29 @@ module OS
   end
   private_class_method :nix_darwin?
 
+  # Current Apple Silicon at /opt/homebrew, and current Intel at /usr/local.
+  # Prerelease, outdated and non-default prefixes stay quiet.
+  sig { returns(T::Boolean) }
+  def self.default_prefix_issue_reports?
+    return false unless mac?
+    return false if OS::Mac.version.prerelease?
+    return false if OS::Mac.version.outdated_release?
+    return false if ARGV.any? { |v| v.start_with?("--cc=") }
+
+    (Hardware::CPU.arm? && HOMEBREW_PREFIX.to_s == HOMEBREW_MACOS_ARM_DEFAULT_PREFIX) ||
+      (Hardware::CPU.intel? && HOMEBREW_PREFIX.to_s == HOMEBREW_DEFAULT_PREFIX)
+  end
+
   nix_managed_homebrew = T.let(OS.nix_managed_homebrew?, T::Boolean)
 
   if OS.mac?
     require "os/mac"
     require "hardware"
     # Don't tell people to report issues on non-Tier 1 configurations.
+    # This fork also accepts reports for maintained Intel at /usr/local.
     if nix_managed_homebrew
       ISSUES_URL = OS.nix_managed_homebrew_issues_url.freeze
-    elsif Hardware::CPU.arm? &&
-          !OS::Mac.version.prerelease? &&
-          !OS::Mac.version.outdated_release? &&
-          ARGV.none? { |v| v.start_with?("--cc=") } &&
-          HOMEBREW_PREFIX.to_s == HOMEBREW_MACOS_ARM_DEFAULT_PREFIX
+    elsif default_prefix_issue_reports?
       ISSUES_URL = "https://docs.brew.sh/Troubleshooting"
     end
     PATH_OPEN = "/usr/bin/open"

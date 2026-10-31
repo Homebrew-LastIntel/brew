@@ -1,5 +1,5 @@
 ---
-last_review_date: "2026-09-21"
+last_review_date: "2026-10-31"
 ---
 
 # Installation
@@ -13,7 +13,7 @@ It is a careful script; it can be run even if you have stuff installed in the pr
 It tells you exactly what it will do before it does it too.
 You have to confirm everything it will do before it starts.
 
-The macOS `.pkg` installer supports only Apple Silicon and also installs Homebrew to its default prefix (`/opt/homebrew`) for the same reasons as above.
+The macOS `.pkg` installer supports Apple Silicon and 64-bit Intel. Apple Silicon installs to `/opt/homebrew`. Intel installs under `/usr/local`. This unofficial fork maintains that Intel prefix on macOS Tahoe 26 and Sequoia 15. macOS Golden Gate 27 is not an Intel OS.
 It is available on [Homebrew/brew's latest GitHub release](https://github.com/Homebrew/brew/releases/latest).
 To specify an alternate install user, such as when the package is installed at the login window before a user has logged in, create `/var/tmp/.homebrew_pkg_user.plist` with a `HOMEBREW_PKG_USER` value before installation:
 
@@ -35,7 +35,7 @@ This also applies to installations and upgrades performed with the macOS `.pkg` 
 
 ## macOS requirements
 
-* An Apple Silicon CPU; using a 64-bit Intel CPU is a [Tier 3](Support-Tiers.md#tier-3) configuration <sup>[1](#1)</sup>
+* An Apple Silicon CPU, or a 64-bit Intel CPU on macOS Sequoia 15 or Tahoe 26 at `/usr/local`. Intel is maintained by this unofficial fork. Upstream Homebrew does not provide Intel bottles, so that configuration stays [Tier 3](Support-Tiers.md#tier-3) <sup>[1](#1)</sup>
 * macOS Sequoia (15) (or higher) installed on officially supported hardware<sup>[2](#2)</sup>
 * When building formulae from source, Command Line Tools (CLT) for Xcode (from `xcode-select --install` or
   [https://developer.apple.com/download/all/](https://developer.apple.com/download/all/)) or
@@ -196,7 +196,7 @@ Uninstallation is documented in the [FAQ](FAQ.md#how-do-i-uninstall-homebrew).
 <a data-proofer-ignore name="1"><sup>1</sup></a> For 32-bit or PPC support see [MacPorts](https://www.macports.org) or [Tigerbrew](https://github.com/mistydemeo/tigerbrew).
 
 <a data-proofer-ignore name="2"><sup>2</sup></a> On Apple Silicon, macOS 15 (Sequoia) through 27 (Golden Gate) is best and supported; macOS 11 (Big Sur) – 14 (Sonoma) are unsupported but may work.
-All Intel Mac configurations that can run Homebrew, including those using OpenCore Legacy Patcher, are [Tier 3](Support-Tiers.md#tier-3).
+This unofficial fork maintains Intel macOS Sequoia 15 and Tahoe 26 at `/usr/local`. Golden Gate is not an Intel OS. Upstream does not provide Intel bottles. Upstream's September 2027 removal is their policy, not a claim that this code already refuses to start.
 macOS 10.15 (Catalina) and older will not run Homebrew at all.
 
 <a data-proofer-ignore name="3"><sup>3</sup></a> Xcode or the CLT is required to build formulae from source. On Apple Silicon, casks and bottles can be installed without developer tools. Intel macOS also requires developer tools for bottle installation. Downloading Xcode may require an Apple Developer account on older versions of Mac OS X. Sign up for free at [Apple's website](https://developer.apple.com/account/).
