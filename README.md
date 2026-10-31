@@ -1,3 +1,89 @@
+# Homebrew-LastIntel / brew
+
+Unofficial fork of [Homebrew/brew](https://github.com/Homebrew/brew). Not affiliated with or endorsed by Homebrew. The beer-mug logo and the text below the line are upstream's. Donations linked there go to the upstream project.
+
+This repository is the package manager. It is BSD-2-Clause. The copyright notice in `LICENSE.txt` stays with the Homebrew contributors.
+
+## Goals
+
+Keep `brew` running on Intel Macs, and keep taking upstream's new work.
+
+- The Intel baseline is commit [`518895ab7be7407523990f86eb6a1a53eb35a72f`](https://github.com/Homebrew/brew/commit/518895ab7be7407523990f86eb6a1a53eb35a72f), the parent of pull request 23679, merged 2026-09-01. That is the last client commit before Intel was marked Tier 3. Release **6.0.20** (2026-08-27) is the last release cut while Intel bottles were still being built.
+- This fork started from upstream `main` at `8a17c2078a1a2f91248915546216783978399e0c` (2026-10-31, tag 7.0.11). We do not boot 6.0.20 as the daily client. Formulae published since Homebrew 7.0.0 need the current client.
+- Each upstream change is merged. If it removes an Intel behavior that existed at the baseline, that behavior is put back. New features that are not tied to Apple Silicon come with the merge.
+- Sandbox, bottle attestations, tap trust, and `brew vulns` stay on. This fork does not document turning them off.
+- macOS Tahoe 26 is the last macOS that runs on Intel. macOS 27 Golden Gate does not boot on these CPUs. This fork will not claim that it does.
+
+Upstream stopped routine Intel bottles on 2026-08-28 because their Sonoma x86_64 CI virtual machines went from seconds of setup to more than two hours and blocked the rest of the queue. They said so on [discussion 7044](https://github.com/orgs/Homebrew/discussions/7044). Apple ended Intel hardware at Tahoe 26. GitHub is removing Intel Mac runners in fall 2027. Those are the limits. The client still runs on Intel today.
+
+## What this repo does not do
+
+- It does not fork `homebrew-core` or `homebrew-cask`. Formulae and casks stay on Homebrew's API at `https://formulae.brew.sh`.
+- It does not rebuild all 8,687 formulae. A missing Intel bottle compiles from source when the upstream project still supports `x86_64-apple-darwin`.
+- It does not rehost upstream bottles or cask binaries.
+- It does not ship a `curl | bash` installer.
+
+## Install on an Intel Mac
+
+The official script at `Homebrew/install` aborts on macOS unless `uname -m` is `arm64`. Use git. You need macOS 15 or 26, the Xcode Command Line Tools, git, and an admin account. `/usr/local` is the Intel prefix. Do not install this fork into `/opt/homebrew`. That prefix is for Apple Silicon bottles and is too long for existing Intel bottles.
+
+These commands create Homebrew's own directories. They do not delete Node, the .NET SDK, Tailscale, MacPorts, or anything else already under `/usr/local`.
+
+```bash
+sudo mkdir -p /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks
+sudo chown "$(whoami):admin" /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks
+git clone https://github.com/Homebrew-LastIntel/brew.git /usr/local/Homebrew
+ln -sfn /usr/local/Homebrew/bin/brew /usr/local/bin/brew
+brew update
+brew config
+brew doctor
+```
+
+`brew config` should show an Intel CPU and prefix `/usr/local`. `brew doctor` may still warn that upstream treats Intel as Tier 3. That warning is not a failed install. Do not set `HOMEBREW_NO_VERIFY_ATTESTATIONS`, `HOMEBREW_NO_SANDBOX`, or `HOMEBREW_NO_REQUIRE_TAP_TRUST`.
+
+`/usr/local/bin` is on the default macOS `PATH`. If `brew` is not found, add this one line to `~/.zprofile` and open a new terminal:
+
+```bash
+eval "$(/usr/local/bin/brew shellenv)"
+```
+
+## Stay current with upstream
+
+From the checkout:
+
+```bash
+cd /usr/local/Homebrew
+git remote add upstream https://github.com/Homebrew/brew.git
+git fetch upstream
+git merge upstream/main
+```
+
+Resolve conflicts by keeping upstream's feature and putting the Intel behavior back. If a commit only builds with the macOS 27 SDK, stop on the previous commit and record the SHA. Do not delete sandbox or attestation code to force the merge.
+
+Push fork work to `Homebrew-LastIntel/brew`. Open a pull request. Do not push the fork's commits to `Homebrew/brew`.
+
+## Install a package
+
+```bash
+brew install <formula>
+```
+
+If no Intel bottle exists, `brew` compiles from source. That is the fallback upstream added when they turned the Intel builders off. A package whose own project removed `x86_64-apple-darwin` will fail that compile. The formula cannot invent the source.
+
+Casks install the vendor's build. If the vendor ships only Apple Silicon, the cask will not gain an Intel app from this fork.
+
+## Layout of the other repositories
+
+| Repository | What it is |
+| --- | --- |
+| [Homebrew-LastIntel/brew](https://github.com/Homebrew-LastIntel/brew) | This client. |
+| [Homebrew-LastIntel/BrewUI](https://github.com/Homebrew-LastIntel/BrewUI) | Fork of the official Mac GUI. AGPL-3.0. |
+| [Homebrew-LastIntel/homebrew-lastintel](https://github.com/Homebrew-LastIntel/homebrew-lastintel) | Notes, checks, and the short list of formulae we had to adjust. |
+
+---
+
+The upstream README follows.
+
 # 🍺 Homebrew
 
 [![Latest GitHub release](https://img.shields.io/github/release/Homebrew/brew.svg)](https://github.com/Homebrew/brew/releases)
