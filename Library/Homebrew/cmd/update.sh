@@ -592,13 +592,14 @@ homebrew-update() {
 
   homebrew-command-enable-debug
 
+  # Do not default to the newest version tag. On this fork that tag is an
+  # upstream release from before the Intel restoration, and checking it out
+  # drops the restoration. An explicit HOMEBREW_UPDATE_TO_TAG is still honored.
   if [[ -z "${HOMEBREW_UPDATE_TO_TAG}" ]]
   then
     if [[ -n "${HOMEBREW_DEVELOPER}" || -n "${HOMEBREW_DEV_CMD_RUN}" ]]
     then
       export HOMEBREW_NO_UPDATE_CLEANUP="1"
-    else
-      export HOMEBREW_UPDATE_TO_TAG="1"
     fi
   fi
 
