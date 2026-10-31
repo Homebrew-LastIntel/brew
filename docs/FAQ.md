@@ -1,5 +1,5 @@
 ---
-last_review_date: "2026-09-13"
+last_review_date: "2026-10-31"
 ---
 
 # FAQ (Frequently Asked Questions)
@@ -172,8 +172,10 @@ We aim to bottle everything.
 Homebrew's default prefix supports its pre-built binary packages (known as [bottles](Bottles.md)) and is used by the installer:
 
 * `/opt/homebrew` for macOS on Apple Silicon,
-* `/usr/local` for macOS on Intel (legacy, [Tier 3 support](Support-Tiers.md#tier-3)), and
+* `/usr/local` for macOS on Intel, and
 * `/home/linuxbrew/.linuxbrew` for Linux.
+
+This unofficial fork maintains Intel macOS Tahoe 26 and Sequoia 15 at `/usr/local`. Upstream Homebrew does not provide bottles for that configuration ([Tier 3](Support-Tiers.md#tier-3)). macOS Golden Gate 27 is not an Intel OS. Upstream's September 2027 removal is their policy and does not mean this code already refuses to start.
 
 Compatible [custom prefixes](Support-Tiers.md#custom-prefixes) can also use bottles.
 

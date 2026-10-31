@@ -95,6 +95,34 @@ then
   chmod -R go-w .
 fi
 
+# The package payload is staged at /opt/homebrew. On x86_64, install under /usr/local.
+# A non-default prefix, including the postinstall specs, is left where it is.
+if [[ "$(uname -m)" == "x86_64" && "${prefix_directory}" == "/opt/homebrew" ]]
+then
+  if [[ -f "/usr/local/bin/brew" && -d "/usr/local/Homebrew" ]]
+  then
+    cp -pRL "${homebrew_directory}/.git" "/usr/local/Homebrew/"
+    if [[ -d "${homebrew_directory}/cache_api" ]]
+    then
+      rm -rf "/usr/local/Homebrew/cache_api"
+      mv "${homebrew_directory}/cache_api" "/usr/local/Homebrew/"
+    fi
+  else
+    mkdir -vp /usr/local/bin
+    mv "${homebrew_directory}" /usr/local/Homebrew
+    ln -svf "../Homebrew/bin/brew" /usr/local/bin/brew
+  fi
+
+  rm -rf "${homebrew_directory}"
+  homebrew_directory="/usr/local/Homebrew"
+  if [[ "${homebrew_pkg_group}" == staff ]]
+  then
+    chmod -R go-w "${homebrew_directory}"
+  fi
+  cd /usr/local
+  prefix_directory="$(pwd -P)"
+fi
+
 # create missing directories
 refuse_symlinked_directories
 mkdir -vp Caskroom Cellar Frameworks etc include lib opt sbin share var
@@ -133,7 +161,16 @@ chmod -h "${homebrew_pkg_mode}" Caskroom Cellar Frameworks bin etc include lib o
   enter_managed_directory linked "${prefix_directory}/var/homebrew/linked" var/homebrew/linked
   chmod "${homebrew_pkg_mode}" .
 )
-chown -R "${homebrew_pkg_user}:${homebrew_pkg_group}" .
+if [[ "${homebrew_directory}" == "/usr/local/Homebrew" ]]
+then
+  # /usr/local may already contain unrelated software. Own only Homebrew paths.
+  chown -h "${homebrew_pkg_user}:${homebrew_pkg_group}" \
+    bin bin/brew etc include lib opt sbin share var
+  chown -h -R "${homebrew_pkg_user}:${homebrew_pkg_group}" \
+    Caskroom Cellar Frameworks Homebrew var/homebrew
+else
+  chown -R "${homebrew_pkg_user}:${homebrew_pkg_group}" .
+fi
 
 rm -rf "${homebrew_directory}/.git/hooks" "${homebrew_directory}/.gitconfig" "${homebrew_directory}/.config/git"
 # The package already contains a stable checkout; reset it when Git is available.
@@ -170,8 +207,8 @@ then
 fi
 rm -vrf "${homebrew_directory}/cache_api"
 
-# add Homebrew to the default PATH
-if [[ -d "/etc/paths.d" ]]
+# /usr/local/bin is already on the default PATH. Do not add the Intel repository bin.
+if [[ -d "/etc/paths.d" && "${homebrew_directory}" != "/usr/local/Homebrew" ]]
 then
   echo "${homebrew_directory}/bin" >/etc/paths.d/homebrew
   chown root:wheel /etc/paths.d/homebrew

@@ -146,6 +146,19 @@ module OS
           return if Homebrew::EnvConfig.developer?
           return if ENV["HOMEBREW_INTEGRATION_TEST"]
 
+          # Sequoia and Tahoe are not unsupported merely because the Mac is Intel.
+          # Upstream still ships no bottles. Golden Gate is not an Intel OS.
+          if ::Hardware::CPU.intel? && [:sequoia, :tahoe].include?(OS::Mac.version.to_sym)
+            return ::Homebrew::Diagnostic::Finding.new(
+              <<~EOS,
+                You are using macOS #{MacOS.version} on Intel x86_64.
+                Upstream Homebrew does not provide bottles for this Tier 3 configuration.
+              EOS
+              tier:        3,
+              remediation: macos_bottle_remediation(MacOS.version, intel: true),
+            )
+          end
+
           tier = 2
           who = +"We"
           version = MacOS.version

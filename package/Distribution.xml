@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <installer-gui-script minSpecVersion="2">
   <pkg-ref id="sh.brew.homebrew"/>
-  <options customize="never" hostArchitectures="arm64" rootVolumeOnly="true"/>
+  <options customize="never" hostArchitectures="x86_64,arm64" rootVolumeOnly="true"/>
   <volume-check>
     <allowed-os-versions>
         <os-version min="15.0.0"/>

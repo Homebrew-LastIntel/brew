@@ -1,5 +1,5 @@
 ---
-last_review_date: "2026-09-21"
+last_review_date: "2026-10-31"
 ---
 
 # Support Tiers
@@ -106,7 +106,7 @@ Tier 3 configurations include:
 - Homebrew invoked through a third-party wrapper
 - Installing formulae using `--HEAD`
 - Installing deprecated or disabled formulae
-- Intel x86_64 systems running macOS
+- Intel x86_64 systems running macOS. Upstream Homebrew does not provide bottles. This unofficial fork maintains Intel macOS Sequoia 15 and Tahoe 26 at `/usr/local`. macOS Golden Gate 27 is not an Intel OS.
 
 If you are using a Homebrew wrapper, get support from and file issues with that wrapper instead of Homebrew unless the same problem is reproducible when running Homebrew directly.
 Homebrew's internal `brew` commands invoke Homebrew directly, not the wrapper.
@@ -140,7 +140,7 @@ Bugs that occur only when using third-party formulae or casks may be closed with
 
 ## Future macOS support
 
-macOS Tahoe 26 is the final version of macOS to run on Intel hardware. In alignment with this change, Homebrew has stopped building new bottles for Intel systems, and will remove the ability to run Homebrew on Intel systems in or after September 2027.
+macOS Tahoe 26 is the final version of macOS to run on Intel hardware. macOS Golden Gate 27 is not an Intel operating system. Upstream Homebrew has stopped building new bottles for Intel systems. Upstream's policy is to remove the ability to run Homebrew on Intel systems in or after September 2027. That policy is not a claim that this code already refuses to start. This unofficial fork maintains Intel macOS Tahoe 26 and Sequoia 15 at `/usr/local`.
 
 Where Homebrew no longer builds bottles, `brew doctor` suggests [MacPorts](https://www.macports.org) for Intel macOS Sequoia 15 and earlier or older Apple Silicon macOS versions.
 At the time of writing, MacPorts does not provide a full set of binary packages for Intel Tahoe ([builder status](https://build.macports.org/builders/ports-26_x86_64-builder)).
@@ -166,7 +166,7 @@ The following timeline outlines expected Tier classifications based on Apple’s
   - Unsupported: macOS Big Sur 11
 
   Intel x86_64:
-  - Unsupported: all macOS versions
+  - Unsupported: all macOS versions (upstream policy; this code does not already refuse to start)
 
 ### Rosetta 2
 
