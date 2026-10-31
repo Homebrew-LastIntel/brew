@@ -479,6 +479,7 @@ module Homebrew
           "osxfuse/**/*.h", # OSXFuse
           "ntfs/**/*.h", # NTFS-3G
           "ntfs-3g/**/*.h", # NTFS-3G
+          "node/**/*.h", # Node.js installed beside Homebrew under /usr/local
         ]
 
         msg = __check_stray_files "/usr/local/include", "**/*.h", allow_list, <<~EOS
