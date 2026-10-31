@@ -27,19 +27,42 @@ Upstream stopped routine Intel bottles on 2026-08-28 because their Sonoma x86_64
 
 The official script at `Homebrew/install` aborts on macOS unless `uname -m` is `arm64`. Use git. You need macOS 15 or 26, the Xcode Command Line Tools, git, and an admin account. `/usr/local` is the Intel prefix. Do not install this fork into `/opt/homebrew`. That prefix is for Apple Silicon bottles and is too long for existing Intel bottles.
 
-These commands create Homebrew's own directories. They do not delete Node, the .NET SDK, Tailscale, MacPorts, or anything else already under `/usr/local`.
+The admin password is requested once, in the `sudo` command below. That command creates Homebrew's directories and makes the prefix directories writable by your user. It does not use `chown -R` on `/usr/local/bin`, `include`, `lib`, or `share`, so Node, the .NET SDK, and Tailscale stay owned by their current owner. It does not delete MacPorts or anything else already under `/usr/local`.
 
 ```bash
-sudo mkdir -p /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks
-sudo chown "$(whoami):admin" /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks
-git clone https://github.com/Homebrew-LastIntel/brew.git /usr/local/Homebrew
+sudo /bin/bash -c '
+set -euo pipefail
+user="${SUDO_USER}"
+mkdir -p \
+  /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks \
+  /usr/local/etc/homebrew /usr/local/opt /usr/local/sbin \
+  /usr/local/var/homebrew/locks /usr/local/var/homebrew/linked /usr/local/var/log \
+  /usr/local/etc/bash_completion.d \
+  /usr/local/share/zsh/site-functions \
+  /usr/local/share/fish/vendor_completions.d \
+  /usr/local/share/doc \
+  /usr/local/share/man/man1 /usr/local/share/man/man8
+chown -R "${user}:admin" \
+  /usr/local/Homebrew /usr/local/Cellar /usr/local/Caskroom /usr/local/Frameworks \
+  /usr/local/etc /usr/local/opt /usr/local/sbin /usr/local/var \
+  /usr/local/share/zsh /usr/local/share/fish
+chown "${user}:admin" \
+  /usr/local/bin /usr/local/include /usr/local/lib /usr/local/share \
+  /usr/local/share/doc /usr/local/share/man \
+  /usr/local/share/man/man1 /usr/local/share/man/man8
 ln -sfn /usr/local/Homebrew/bin/brew /usr/local/bin/brew
+'
+git clone https://github.com/Homebrew-LastIntel/brew.git /usr/local/Homebrew
+umask 022
+cat > /usr/local/etc/homebrew/brew.env <<'EOF'
+HOMEBREW_BREW_GIT_REMOTE=https://github.com/Homebrew-LastIntel/brew
+EOF
 brew update
 brew config
 brew doctor
 ```
 
-`brew config` should show an Intel CPU and prefix `/usr/local`. `brew doctor` may still warn that upstream treats Intel as Tier 3. That warning is not a failed install. Do not set `HOMEBREW_NO_VERIFY_ATTESTATIONS`, `HOMEBREW_NO_SANDBOX`, or `HOMEBREW_NO_REQUIRE_TAP_TRUST`.
+`HOMEBREW_BREW_GIT_REMOTE` keeps `brew update` on this fork. `brew config` should show an Intel CPU and prefix `/usr/local`. `brew doctor` still warns that upstream treats Intel as Tier 3, and it exits 1 because of that warning. That warning is not a failed install. Do not run the `chown -R` command `brew doctor` prints for `/usr/local/bin`, `include`, `lib`, or `share`. Do not set `HOMEBREW_NO_VERIFY_ATTESTATIONS`, `HOMEBREW_NO_SANDBOX`, or `HOMEBREW_NO_REQUIRE_TAP_TRUST`.
 
 `/usr/local/bin` is on the default macOS `PATH`. If `brew` is not found, add this one line to `~/.zprofile` and open a new terminal:
 
