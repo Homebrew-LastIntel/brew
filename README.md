@@ -9,7 +9,7 @@ This repository is the package manager. It is BSD-2-Clause. The copyright notice
 Keep `brew` running on Intel Macs, and keep taking upstream's new work.
 
 - The Intel baseline is commit [`518895ab7be7407523990f86eb6a1a53eb35a72f`](https://github.com/Homebrew/brew/commit/518895ab7be7407523990f86eb6a1a53eb35a72f), the parent of pull request 23679, merged 2026-09-01. That is the last client commit before Intel was marked Tier 3. Release **6.0.20** (2026-08-27) is the last release cut while Intel bottles were still being built.
-- This fork started from upstream `main` at `8a17c2078a1a2f91248915546216783978399e0c` (2026-10-31, tag 7.0.11). We do not boot 6.0.20 as the daily client. Formulae published since Homebrew 7.0.0 need the current client.
+- This fork started from upstream `main` at `8a17c2078a1a2f91248915546216783978399e0c` (2026-10-31). The newest release tag then was [7.0.11](https://github.com/Homebrew/brew/releases/tag/7.0.11) (`c6069d2a943b`, 2026-10-26), which is behind that `main`. We do not boot 6.0.20 as the daily client. Formulae published since Homebrew 7.0.0 need the current client.
 - Each upstream change is merged. If it removes an Intel behavior that existed at the baseline, that behavior is put back. New features that are not tied to Apple Silicon come with the merge.
 - Sandbox, bottle attestations, tap trust, and `brew vulns` stay on. This fork does not document turning them off.
 - macOS Tahoe 26 is the last macOS that runs on Intel. macOS 27 Golden Gate does not boot on these CPUs. This fork will not claim that it does.
